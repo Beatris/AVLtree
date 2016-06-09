@@ -1,14 +1,16 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 struct Node {
-    int key;
+    string key, value;
     int height;
     Node* left;
     Node* right;
-    Node(int k) {
+    Node(string k, string v) {
         key = k;
+        value = v;
         left = right = NULL;
         height = 1;
     }
@@ -23,13 +25,15 @@ class AVLTree {
     Node* rotateRight(Node* node);
     Node* rotateLeft(Node* node);
     Node* balance(Node* node);
-    Node* insertNode(Node* node, int newKey);
+    Node* insertNode(Node* node, string newKey, string newValue);
+    string find(Node* node, string key);
     void printNode(Node* node);
     void deleteAll(Node* node);
     public:
         AVLTree();
         ~AVLTree();
-        void insert(int key);
+        void insert(string key, string value);
+        string translate(string key);
         void print();
 };
 
@@ -88,12 +92,12 @@ Node* AVLTree::balance(Node* node) {
     return node;
 }
 
-Node* AVLTree::insertNode(Node* node, int newKey) {
-    if(!node) return new Node(newKey);
-    if(newKey < node->key)
-        node->left = insertNode(node->left, newKey);
+Node* AVLTree::insertNode(Node* node, string newKey, string newValue) {
+    if(!node) return new Node(newKey, newValue);
+    if(newKey.size() < node->key.size())
+        node->left = insertNode(node->left, newKey, newValue);
     else
-        node->right = insertNode(node->right, newKey);
+        node->right = insertNode(node->right, newKey, newValue);
     return balance(node);
 }
 
@@ -125,8 +129,27 @@ AVLTree::~AVLTree() {
     if(root) deleteAll(root);
 }
 
-void AVLTree::insert(int newKey) {
-    root = insertNode(root, newKey);
+void AVLTree::insert(string newKey, string newValue) {
+    root = insertNode(root, newKey, newValue);
+}
+
+string AVLTree::find(Node* node, string key) {
+    string result;
+    if(node->key == key)
+        result = node->value;
+    else {
+        if(key.size() > node->key.size()) {
+            result = find(node->right, key);
+        }
+        if (key.size() < node->key.size()) {
+            result = find(node->left, key);
+        }
+    }
+    return result;
+}
+
+string AVLTree::translate(string key) {
+    return find(root, key);
 }
 
 void AVLTree::print() {
@@ -135,13 +158,18 @@ void AVLTree::print() {
 
 int main() {
     AVLTree tree;
-    tree.insert(7);
-    tree.insert(6);
-    tree.insert(5);
-    tree.insert(4);
-    tree.insert(3);
-    tree.insert(2);
-    tree.insert(1);
+    string a1 = "grandfather";
+    string a2 = "dqdo";
+    string b1 = "grandma";
+    string b2 = "baba";
+    string c1 = "mum";
+    string c2 = "mama";
+    string d = "alabala";
+    tree.insert(a1, a2);
+    tree.insert(b1, b2);
+    tree.insert(c1, c2);
     tree.print();
+    cout << tree.translate(a1) << endl;
+    cout << tree.translate(d) << endl;
     return 0;
 }
